@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3030:3000
+    restart: unless-stopped
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana-data:/var/lib/grafana
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - type: bind
+        source: ./prometheus.yml
+        target: /etc/prometheus/prometheus.yml
+  provider:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile-provider
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload 
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.01'
+    #       memory: 64MB
+    environment:
+      DEBUG: 1
+    volumes:
+      - ../provider-node:/provider
+    ports:
+      - "8000:8000"
+    # restart: on-failure
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning 
+    volumes: 
+      - cache:/data
+
+volumes:
+  grafana-data:
+  cache:
+    driver: local
