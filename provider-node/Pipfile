@@ -27,6 +27,7 @@ ratelimit = "*"
 slowapi = "*"
 prometheus-fastapi-instrumentator = "*"
 redis = "*"
+halo = "*"
 
 [dev-packages]
 

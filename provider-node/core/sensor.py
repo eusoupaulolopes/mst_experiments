@@ -1,19 +1,19 @@
 import random, time, uuid, threading
-from resource import Resource, ResourceWithRecovery
+from .resources import Resource
 from enum import Enum
 from typing import List
 import asyncio
 
 class OPMODE(Enum):
-    IDLE, ACTIVE, DOWN = 'Idle','Active','Descarregado'
+    IDLE, ACTIVE, DOWN = 'Idle','Ativo','Desligado'
 
 class Sensor:            
      
-    def __init__(self, name:str, resource:Resource = ResourceWithRecovery):
+    def __init__(self, name:str, resource:Resource):
         self.id=uuid.uuid1()
         self.name=name
         self.resource=resource()
-        self.status=OPMODE.DOWN   
+        self.status=OPMODE.DOWN
         
     def power_on(self):
         print(f"ligando sensor {self.name}")
@@ -24,10 +24,10 @@ class Sensor:
     
     def switch_status(self, status:OPMODE):
         self.status=status
-        self.resource.mode=status   
+        self.resource.set_status(status)
         
     def get_measure(self) -> int: 
-        if self.resource.mode == OPMODE.DOWN:
+        if self.resource.status == OPMODE.DOWN:
             self.status == OPMODE.DOWN
             raise Exception("Sensor descarregado.") 
         else:              
@@ -43,3 +43,4 @@ class Sensor:
             "sensor_name": self.name,
             "sensor_charge": f'{self.resource.charge} unids'
         }
+        
