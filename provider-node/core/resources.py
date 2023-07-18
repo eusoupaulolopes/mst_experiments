@@ -47,16 +47,18 @@ class ResourceSimple(Resource):
    
     def consume(self):
         while self.charge > 0:  
-                               
-            time.sleep(1)
+            if self.charge <= 0:
+                self.status = RESOURCESTATUS.DOWN
+                self.log_entry("Resource Empty)")
+                continue          
             
             if self.charge >= self.capacity: 
                 self.charge = self.capacity  
+                
             self.charge = self.charge - self.status.value  
             self.log_entry()  
-        if self.charge <= 0:
-            self.status = RESOURCESTATUS.DOWN
-            self.log_entry("Resource Empty)")
+            time.sleep(1)
+
 
             
 class ResourceWithRecovery(Resource):       
@@ -64,6 +66,10 @@ class ResourceWithRecovery(Resource):
    def consume(self):
         idle_time = 0
         while self.charge > 0:            
+            if self.charge <= 0:
+                self.status = RESOURCESTATUS.DOWN
+                self.log_entry("Resource Empty)")
+                continue
             
             demmand = self.status.value
             if self.status == RESOURCESTATUS.ACTIVE:
@@ -78,9 +84,6 @@ class ResourceWithRecovery(Resource):
             
             if self.charge >= self.capacity: 
                 self.charge = self.capacity  
+                
             self.log_entry()  
             time.sleep(1)
-        
-        if self.charge <= 0:
-            self.status = RESOURCESTATUS.DOWN
-            self.log_entry("Resource Empty)")

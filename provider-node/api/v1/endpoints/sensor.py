@@ -12,12 +12,14 @@ limiter = Limiter(key_func=get_remote_address, storage_uri='redis://192.168.1.23
 router = APIRouter()
 
 # provisionando sensores
-strategy = ResourceSimple
+strategy = ResourceWithRecovery
 sensors_names = ['no_throttling', 'fixed_throttled', 'dynamic_throttled']
 sensores = {sensor: Sensor(sensor, strategy) for sensor in sensors_names}
 
 #ligando os sensores
 for s in sensores.values(): s.power_on()
+
+# tend = 10 / 5 (+5)
 
 
 def stabilsh_limits() ->str:
@@ -28,7 +30,7 @@ def stabilsh_limits() ->str:
     elif sensor.resource.charge > 250:
         return "15/minute"
     elif sensor.resource.charge > 75:
-        return "2/minute"
+        return "5/minute"
     else:
         return '0/minute'
 

@@ -12,7 +12,7 @@ ENDPOINT = HOST + API_PATH
 ENDPOINT_THROTTLING = HOST + API_PATH_THOTTLING
 ENDPOINT_DYNAMIC_THROTTLING = HOST + API_PATH_DYNAMIC_THOTTLING
 
-MAX_THREADS = 300
+MAX_THREADS = 3
 CONCURRENT_THREADS = 300
 
 sensors_names = ['no_throttling', 'fixed_throttled', 'dynamic_throttled']
@@ -32,14 +32,17 @@ print ('Starting:', start_time)
 
 with concurrent.futures.ThreadPoolExecutor(MAX_THREADS) as executor:
     futures = [ executor.submit(send_api_request(x)) for x in range (CONCURRENT_THREADS) ]
-
-while True:
-    pos = 0
-    send_api_request(pos)
-    pos +=1
-    time.sleep(1)
-    if pos>= 300: break
     
 time.sleep(5)
 end_time = datetime.datetime.now()
 print ('Finished start time:', start_time, 'duration: ', end_time-start_time)
+
+pos = 300
+while True:
+    send_api_request(pos)
+    pos +=1
+    time.sleep(1)
+    
+# time.sleep(5)
+# end_time = datetime.datetime.now()
+# print ('Finished start time:', start_time, 'duration: ', end_time-start_time)

@@ -27,14 +27,16 @@ class Sensor:
         self.resource.set_status(status)
         
     def get_measure(self) -> int: 
-        if self.resource.status == OPMODE.DOWN:
-            self.status == OPMODE.DOWN
+        if self.resource.charge <= 0:            
+            self.switch_status(OPMODE.DOWN)
             raise Exception("Sensor descarregado.") 
+        
         else:              
             self.switch_status(OPMODE.ACTIVE) 
             measure = random.randint(10,30)
             time.sleep(1)
             self.switch_status(OPMODE.IDLE)
+            
         return measure
     
     def get_sensor_status(self):
