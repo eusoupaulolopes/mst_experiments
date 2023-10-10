@@ -1,89 +1,82 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
-import time
 from typing import List
+from .log import get_logger
+import time
 
-CAPACITY= 1000
-CHARGE=1000
-RECOVER_CAPACITY = -2
+import threading
+from metrics.prometheus_metrics import resource_charge_metric
 
-class RESOURCESTATUS(Enum):
-    IDLE, ACTIVE, DOWN = 3,6,0
-   
+
+MAX_CAPACITY= 2000
+CHARGE=2000
+
+RESOURCESTATUS = Enum('RESOURCESTATUS', (
+    ('IDLE', 1),
+    ('ACTIVE', 6),
+    ('HOLDING', 0),
+    ('EMPTY', 0)))    
+
 
 class Resource(ABC):  
-
                   
-    def __init__(self):
-        self.capacity = CAPACITY
-        self.charge = CHARGE
-        self.status = RESOURCESTATUS.IDLE
-        self.log = []
-   
-    def get_charge(self) -> int:
-        return self.charge
+    def __init__(self, uuid = None):
+        self.uuid = uuid
+        self.capacity = MAX_CAPACITY
+        self._current_capacity = MAX_CAPACITY
+        self._status = RESOURCESTATUS.HOLDING
+        self.log = get_logger()
+        self._lock = threading.Lock()        
+        
+    @property
+    def charge(self) -> int:
+        with self._lock:
+            return self._current_capacity
     
+    @charge.setter
+    def charge(self, value: int):   
+        with self._lock:  
+            if value <= 0:
+                self._current_capacity = 0
+                self.status = RESOURCESTATUS.EMPTY
+                
+            elif value >= self.capacity:
+                self._current_capacity = self.capacity
+            else:
+                self._current_capacity = value            
+            self.log.info(f"Resource state: {self.status.name}, currrent capacity: {self._current_capacity}" , extra={'uuid': self.uuid})
+            
+        resource_charge_metric.labels(sensor=self.uuid).set(self._current_capacity)
+           
+    
+    @property
+    def status(self) -> RESOURCESTATUS:
+        return self._status 
+        
+    @status.setter
+    def status(self, desired_status) -> None:         
+        if desired_status.name != self.status.name:           
+            self._status = desired_status
+            
+            
     @abstractmethod
     def consume(self) -> None:
         pass
     
-    def reload(self) -> None:
-        self.charge = 1000
+    @abstractmethod
+    def reload(self, value:int) -> None:
+        pass
+
+
+class ConcreteResource(Resource):
     
-    def set_status(self, status:RESOURCESTATUS) ->None:
-        self.status = RESOURCESTATUS[status.name]
-    
-    def get_logs(self) -> list:
-        for l in self.log:
-            print(l)
-        return self.log
-    
-    def log_entry(self, adv:str = None) -> None:
-        self.log.append(f"{time.time()} - Operando em {self.status.name}, carga atual: {self.charge}")
+    #Passivelly Spend Resource as Idle 
+    def consume(self) -> None:
+        while self.charge > 0:
+            time.sleep(1)              
+            self.charge -= self.status.value
+
+    def reload(self, value: int) -> None:
+        self.charge += value
         
-    
-class ResourceSimple(Resource):        
-   
-    def consume(self):
-        while self.charge > 0:  
-            if self.charge <= 0:
-                self.status = RESOURCESTATUS.DOWN
-                self.log_entry("Resource Empty)")
-                continue          
-            
-            if self.charge >= self.capacity: 
-                self.charge = self.capacity  
-                
-            self.charge = self.charge - self.status.value  
-            self.log_entry()  
-            time.sleep(1)
-
-
-            
-class ResourceWithRecovery(Resource):       
-   
-   def consume(self):
-        idle_time = 0
-        while self.charge > 0:            
-            if self.charge <= 0:
-                self.status = RESOURCESTATUS.DOWN
-                self.log_entry("Resource Empty)")
-                continue
-            
-            demmand = self.status.value
-            if self.status == RESOURCESTATUS.ACTIVE:
-                idle_time = 0  
-                            
-            if self.status == RESOURCESTATUS.IDLE:
-                idle_time+=1
-                if idle_time >= 3:
-                    demmand = RECOVER_CAPACITY
-                
-            self.charge = self.charge - demmand
-            
-            if self.charge >= self.capacity: 
-                self.charge = self.capacity  
-                
-            self.log_entry()  
-            time.sleep(1)

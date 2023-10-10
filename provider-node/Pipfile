@@ -28,6 +28,7 @@ slowapi = "*"
 prometheus-fastapi-instrumentator = "*"
 redis = "*"
 halo = "*"
+pypubsub = "*"
 
 [dev-packages]
 
