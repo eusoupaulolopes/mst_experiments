@@ -6,6 +6,7 @@ from .log import get_logger
 from metrics.prometheus_metrics import resource_harvest_metric
 
 SECONDSTIMELAPSE = 60
+weight = [5674,6017,6032,6082,5561,5075,4658,4773,5571,5971,6112,6269,5968]
 
 
 available_resource = [0,0,0,0,0,45,139,366,604,728,881,944,864,831,696,511,279,33,0,0,0,0,0,0]
