@@ -44,7 +44,7 @@ pos = 0
 while True:
     send_api_request(pos)
     pos +=1
-    time.sleep(1)
+    # time.sleep(1)
     
 end_time = datetime.datetime.now()    
 print ('Finished start time:', start_time, 'duration: ', end_time-start_time)

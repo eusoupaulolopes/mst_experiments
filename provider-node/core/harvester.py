@@ -5,9 +5,10 @@ from .resources import Resource
 from .log import get_logger
 from metrics.prometheus_metrics import resource_harvest_metric
 
-SECONDSTIMELAPSE = 60
-weight = [5674,6017,6032,6082,5561,5075,4658,4773,5571,5971,6112,6269,5968]
+LOADCYCLETIME = 6
 
+months = [5674,6017,6032,6082,5561,5075,4658,4773,5571,5971,6112,6269]
+weight = [0.0, 0.0, 0.0, 0.0, 0.0, 0.007, 0.02, 0.053, 0.087, 0.105, 0.127, 0.136, 0.125, 0.12, 0.101, 0.074, 0.04, 0.005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 available_resource = [0,0,0,0,0,45,139,366,604,728,881,944,864,831,696,511,279,33,0,0,0,0,0,0]
 
@@ -24,25 +25,22 @@ class Harvester:
 
 
     def ciclic_harvesting(self):
-        moment = 0
+        h_time = 0
+        month = 0
         while True:
-            moment
-            moment = (moment+1) % 24
-            yield moment 
+            if h_time == 23: 
+                month = month +1
+            h_time
+            month = month % 12
+            h_time = (h_time+1) % 24
+            yield month, h_time 
     
     def reload(self):
-        while self.target.charge > 0:
-            value = next(self.harvest_generator)    
-            self.target.reload(available_resource[value])
-            self.log.info(f"Harvested at: {value}h Harvested: {available_resource[value]}, currrent capacity: {self.target._current_capacity} RELOADING"  , extra={'uuid': self.target.uuid})
-            resource_harvest_metric.labels(sensor=self.target.uuid).set(available_resource[value])
-            time.sleep(SECONDSTIMELAPSE)
-
-
-        
-        
-
-        
-
-        
-    
+        while True:
+            month,hourly = next(self.harvest_generator)  
+            value = round(months[month]*weight[hourly])
+            self.target.reload(value)
+            # self.log.info(f"Harvested at: {hourly}h Harvested: {value}, Potential: {months[month]}, currrent capacity: {self.target._current_capacity} RELOADING"  , extra={'uuid': self.target.uuid})
+            self.log.info(f"Resource state: LOADCYCLE, currrent capacity: {self.target._current_capacity}, value: {value}", extra={'uuid': self.target.uuid})
+            resource_harvest_metric.labels(sensor=self.target.uuid).set(value)
+            time.sleep(LOADCYCLETIME)

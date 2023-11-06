@@ -39,8 +39,7 @@ class Resource(ABC):
         with self._lock:  
             if value <= 0:
                 self._current_capacity = 0
-                self.status = RESOURCESTATUS.EMPTY
-                
+                self.status = RESOURCESTATUS.EMPTY                
             elif value >= self.capacity:
                 self._current_capacity = self.capacity
             else:
@@ -73,9 +72,10 @@ class ConcreteResource(Resource):
     
     #Passivelly Spend Resource as Idle 
     def consume(self) -> None:
-        while self.charge > 0:
-            time.sleep(1)              
-            self.charge -= self.status.value
+        while True:
+            if self.charge > 0:             
+                self.charge -= self.status.value
+            time.sleep(0.1) 
 
     def reload(self, value: int) -> None:
         self.charge += value

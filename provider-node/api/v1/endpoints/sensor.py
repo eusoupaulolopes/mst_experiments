@@ -20,27 +20,11 @@ sensores = {sensor: Sensor(sensor, strategy) for sensor in sensors_names}
 #ligando os sensores
 for s in sensores.values(): s.power_on()
 
-# def stabilsh_limits() ->str:
-#     sensor = sensores.get('dynamic_throttled')
-#     print(sensor.name)
-#     if sensor.resource.charge > 500:
-#         return "60/minute"
-#     elif sensor.resource.charge > 250:
-#         return "15/minute"
-#     elif sensor.resource.charge > 75:
-#         return "10/minute"
-#     else:
-#         return '0/minute'
-
 def stabilsh_limits() ->str:
     sensor = sensores.get('dynamic_throttled')
     print(sensor.name)
     if sensor.resource.charge > 700:
-        return "60/minute"
-    # elif sensor.resource.charge > 250:
-    #     return "15/minute"
-    # elif sensor.resource.charge > 75:
-    #     return "10/minute"
+        return "exempt"
     else:
         return '0/minute'
 

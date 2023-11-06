@@ -67,12 +67,12 @@ class Sensor:
         
     def get_measure(self) -> int: 
         if self.resource.charge <= 0:            
-            self.power_off()
+            # self.power_off()
             raise SensorException("Sensor resource is empty.")         
         else:              
             self.sensor_status = SENSORMODE.ACTIVE
             measure = random.randint(10,30)
-            time.sleep(1)
+            time.sleep(0.1)
             self.sensor_status = SENSORMODE.IDLE
             
         return measure
