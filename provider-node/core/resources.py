@@ -1,7 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List
 from .log import get_logger
 import time
 
@@ -19,20 +18,22 @@ RESOURCESTATUS = Enum('RESOURCESTATUS', (
     ('EMPTY', 0)))    
 
 
-class Resource(ABC):  
+class Resource(ABC):      
                   
     def __init__(self, uuid = None):
         self.uuid = uuid
         self.capacity = MAX_CAPACITY
-        self._current_capacity = MAX_CAPACITY
+        self._current_capacity = CHARGE
         self._status = RESOURCESTATUS.HOLDING
         self.log = get_logger()
-        self._lock = threading.Lock()        
+        self._lock = threading.Lock()   
+             
         
     @property
     def charge(self) -> int:
         with self._lock:
             return self._current_capacity
+        
     
     @charge.setter
     def charge(self, value: int):   
@@ -52,6 +53,7 @@ class Resource(ABC):
     @property
     def status(self) -> RESOURCESTATUS:
         return self._status 
+    
         
     @status.setter
     def status(self, desired_status) -> None:         
@@ -62,6 +64,7 @@ class Resource(ABC):
     @abstractmethod
     def consume(self) -> None:
         pass
+    
     
     @abstractmethod
     def reload(self, value:int) -> None:

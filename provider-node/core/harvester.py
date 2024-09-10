@@ -10,7 +10,7 @@ LOADCYCLETIME = 6
 months = [5674,6017,6032,6082,5561,5075,4658,4773,5571,5971,6112,6269]
 weight = [0.0, 0.0, 0.0, 0.0, 0.0, 0.007, 0.02, 0.053, 0.087, 0.105, 0.127, 0.136, 0.125, 0.12, 0.101, 0.074, 0.04, 0.005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-available_resource = [0,0,0,0,0,45,139,366,604,728,881,944,864,831,696,511,279,33,0,0,0,0,0,0]
+# available_resource = [0,0,0,0,0,45,139,366,604,728,881,944,864,831,696,511,279,33,0,0,0,0,0,0]
 
 
 class Harvester:
@@ -23,17 +23,16 @@ class Harvester:
         self.log = get_logger()    
   
 
-
     def ciclic_harvesting(self):
         h_time = 0
         month = 0
         while True:
             if h_time == 23: 
-                month = month +1
-            h_time
+                month = month +1                
             month = month % 12
             h_time = (h_time+1) % 24
             yield month, h_time 
+            
     
     def reload(self):
         while True:

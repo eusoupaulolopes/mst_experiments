@@ -2,53 +2,66 @@ import time
 import requests
 import datetime
 import concurrent.futures
+import aiohttp
+import asyncio
+
 
 HOST = 'http://localhost:8000'
-API_PATH = '/v1/sensor'
+API_PATH_NOTHROTTLING = '/v1/sensor'
 API_PATH_THOTTLING = '/v1/sensor2'
 API_PATH_DYNAMIC_THOTTLING = '/v1/sensor3'
 
-ENDPOINT = HOST + API_PATH
+START_EXPERIMENT = HOST + '/v1/start_sensors'
+ENDPOINT = HOST + API_PATH_NOTHROTTLING
 ENDPOINT_THROTTLING = HOST + API_PATH_THOTTLING
 ENDPOINT_DYNAMIC_THROTTLING = HOST + API_PATH_DYNAMIC_THOTTLING
 
-MAX_THREADS = 3
-CONCURRENT_THREADS = 300
-
 sensors_names = ['no_throttling', 'fixed_throttled', 'dynamic_throttled']
 
-def send_api_request(pos:int):
-    # print ('Sending API request: ', ENDPOINT)
+async def make_request(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            pass  
+        
+        
+async def send_api_request(pos:int):
     try:
-        r, t, d = requests.get(ENDPOINT), requests.get(ENDPOINT_THROTTLING), requests.get(ENDPOINT_DYNAMIC_THROTTLING)
-        print(f"request_number : {pos}, data : (\n"
-            f"['sensor': {sensors_names[0]},'request_status': {r.status_code}, 'return': {r.text}]\n"
-            f"['sensor': {sensors_names[1]},'request_status': {t.status_code}, 'return': {t.text}]\n"
-            f"['sensor': {sensors_names[2]},'request_status': {d.status_code}, 'return': {d.text}])\n"
-        )
-    except:
-        print("Exception occured")
+        start_time = datetime.datetime.now()
+        urls = [ENDPOINT, ENDPOINT_THROTTLING, ENDPOINT_DYNAMIC_THROTTLING]
+        reqs = [make_request(url) for url in urls]
+        await asyncio.gather(*reqs)
+        end_time = datetime.datetime.now() 
+        elapsed = (end_time - start_time).total_seconds()
+        if elapsed < 0.2:
+            await asyncio.sleep(0.2 - elapsed)
+    except Exception as e:
+        print("Exception occured:", e)
            
-
-start_time = datetime.datetime.now()
-print ('Starting:', start_time)
-
-# with concurrent.futures.ThreadPoolExecutor(MAX_THREADS) as executor:
-#     futures = [ executor.submit(send_api_request(x)) for x in range (CONCURRENT_THREADS) ]
     
-# time.sleep(5)
-# end_time = datetime.datetime.now()
-# print ('Finished start time:', start_time, 'duration: ', end_time-start_time)
+async def main():
 
-pos = 0
-while True:
-    send_api_request(pos)
-    pos +=1
-    # time.sleep(1)
+    try:
+        print("inciando sensores")
+        pos = 0
+        requests.get(START_EXPERIMENT)
+        start_time = datetime.datetime.now()
+        curr_time = start_time
+        print ('Starting:', start_time)        
+        curr_time = start_time
+        
+        while (curr_time - start_time).total_seconds() < 1728 or pos < 8640:
+            await send_api_request(pos)
+            pos +=1
+            curr_time = datetime.datetime.now()  
+            print(f"elapsed time: {curr_time - start_time} req: {pos}")  
+                  
+        end_time = datetime.datetime.now()    
+        print ('Finished!\n start time:', start_time, 'duration: ', end_time-start_time, 'num_requests: ', pos)
+    except KeyboardInterrupt:
+        print("execução interrompinda!")
     
-end_time = datetime.datetime.now()    
-print ('Finished start time:', start_time, 'duration: ', end_time-start_time)
-    
-# time.sleep(5)
-# end_time = datetime.datetime.now()
-# print ('Finished start time:', start_time, 'duration: ', end_time-start_time)
+
+
+if __name__ == "__main__": 
+    asyncio.run(main())
+

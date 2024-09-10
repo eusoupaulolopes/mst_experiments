@@ -59,10 +59,6 @@ class Sensor:
             self.power_reload.start()
             
     def power_off(self):
-        # if self.power_request is not None:
-        #     self.power_request.set()
-        # if self.power_reload is not None:
-        #     self.power_reload.set()
         self.sensor_status=SENSORMODE.DOWN
         
     def get_measure(self) -> int: 
