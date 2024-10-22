@@ -24,7 +24,7 @@ async def make_request(url):
             pass  
         
         
-async def send_api_request(pos:int):
+async def send_request(pos:int):
     try:
         start_time = datetime.datetime.now()
         urls = [ENDPOINT, ENDPOINT_THROTTLING, ENDPOINT_DYNAMIC_THROTTLING]
@@ -50,7 +50,7 @@ async def main():
         curr_time = start_time
         
         while (curr_time - start_time).total_seconds() < 1728 or pos < 8640:
-            await send_api_request(pos)
+            await send_request(pos)
             pos +=1
             curr_time = datetime.datetime.now()  
             print(f"elapsed time: {curr_time - start_time} req: {pos}")  

@@ -1,6 +1,18 @@
 import logging
 import logging.config
 import copy
+import os
+from datetime import datetime
+
+timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+log_filename = f"log_{timestamp}.log"
+
+log_dir = "logs"
+
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+    
+log_path = os.path.join(log_dir, log_filename)
 
 log_dict = {
     'version': 1,
@@ -21,14 +33,14 @@ log_dict = {
         },
         'file_handler': {
             'level': 'INFO',
-            'filename': 'core.log',
+            'filename': f'{log_path}',
             'class': 'logging.FileHandler',
             'formatter': 'standard',
             'mode': 'w'
         }
     },
     'loggers': {
-        'core': {
+        'node_log': {
             'handlers': ['file_handler',],
             'level': 'INFO',
             'propagate': False
@@ -36,7 +48,9 @@ log_dict = {
     }
 }
 logging.config.dictConfig(log_dict)
-
+    
+    
 def get_logger():
    
-    return logging.getLogger('core')
+   return logging.getLogger('node_log')
+

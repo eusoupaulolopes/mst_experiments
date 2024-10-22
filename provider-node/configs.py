@@ -4,7 +4,7 @@ from uuid import UUID
 
 class Settings(BaseSettings):
     """
-    Configurações globais do servidor
+    Configurações globais do node
     """
     API_V1_STR: str 
     PROJECT_NAME: str 
@@ -14,5 +14,5 @@ class Settings(BaseSettings):
 settings = Settings(
     API_V1_STR="/v1",
     INSTANCE_ID=uuid.uuid4(),
-    PROJECT_NAME="Temperature Provider"
+    PROJECT_NAME="Provider"
 )

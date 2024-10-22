@@ -1,10 +1,9 @@
-from typing import Union
-from fastapi import FastAPI, Request
-from api.v1.api import api_router
+
+from fastapi import FastAPI
+from interface.v1.api import api_router
 from configs import settings
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
-# from prometheus_fastapi_instrumentator import Instrumentator
 from starlette_prometheus import metrics, PrometheusMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -28,11 +27,5 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# Instrumentator().instrument(app).expose(app)
-
-@app.get("/")
-# @limiter.limit("10/minute")
-def read_root(request: Request):
-    return {"instance": settings.INSTANCE_ID}
 
 

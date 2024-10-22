@@ -29,6 +29,7 @@ prometheus-fastapi-instrumentator = "*"
 redis = "*"
 halo = "*"
 pypubsub = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

@@ -22,11 +22,6 @@ services:
       context: ../
       dockerfile: ./docker/Dockerfile-provider
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload 
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.01'
-    #       memory: 64MB
     environment:
       DEBUG: 1
     volumes:
