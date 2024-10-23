@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-log_filename = f"log_{timestamp}.log"
+log_filename = f"log_.log"
 
 log_dir = "logs"
 

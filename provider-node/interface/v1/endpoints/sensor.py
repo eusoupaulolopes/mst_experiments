@@ -85,7 +85,7 @@ def get_sensor_dynamic_throttled(request: Request):
 def get_sensor_status():    
     
     for sensor in sensores.values():
-        resource_charge_metric.labels(sensor=sensor.name).set(sensor.energy_buffer.charge)
+        resource_charge_metric.labels(sensor=sensor.name).set(sensor.power_suppy.charge)
         
 
 @router.get("/sensor/{sensor_id}/resource")

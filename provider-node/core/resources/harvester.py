@@ -15,7 +15,7 @@ load_dotenv(find_dotenv())
 LOADCYCLETIME = int(os.getenv("HARVEST_CYCLETIME_SECONDS", 6))
 
 
-with open(os.getenv("HARVERSTED_INPUT"), 'r') as json_file:
+with open(os.getenv("HARVEST_MODEL"), 'r') as json_file:
     json_data = json.load(json_file)
 
 days = json_data['solar_power']

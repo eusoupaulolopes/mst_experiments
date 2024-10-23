@@ -82,12 +82,7 @@ class Sensor:
             self.sensor_status = SENSORMODE.IDLE
             
         return random_measure
-    
-
-    
-    
-    
-    
+       
     def __str__(self):
         return json.dumps(dict(self), ensure_ascii=False)
     
